@@ -4,6 +4,8 @@ This is a minimal MVP (Minimum Viable Product) for generating short videos by in
 
 Built with **Gradio** as a frontend and **FFmpeg + OpenCV** as the backend processing stack.
 
+Visit [image2video.paultech](https://image2video.paultech.cc/) to play with demo
+
 ---
 
 ## 📸 Features
