@@ -8,6 +8,9 @@ import ffmpeg
 from PIL import Image
 
 
+host = os.getenv("HOST", "127.0.0.1") 
+port = int(os.getenv("PORT", 7860))
+
 # === Dummy Interpolation (replace with AnimateDiff later) ===
 def simple_interpolate(img1, img2, num_frames):
     frames = [img1]
@@ -59,4 +62,4 @@ with gr.Blocks() as demo:
 
     generate_btn.click(fn=generate_video, inputs=[keyframe1, keyframe2, num_frames], outputs=video_output)
 
-demo.launch()
+demo.launch(server_name=host, server_port=port)
