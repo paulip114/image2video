@@ -30,7 +30,7 @@ def generate_video(keyframe1, keyframe2, num_inter_frames):
     img2 = np.array(Image.open(keyframe2).convert("RGB"))
 
     if img1.shape != img2.shape:
-    img2 = cv2.resize(img2, (img1.shape[1], img1.shape[0]))
+        img2 = cv2.resize(img2, (img1.shape[1], img1.shape[0]))
 
     frames = simple_interpolate(img1, img2, num_inter_frames)
 
