@@ -52,14 +52,21 @@ def generate_video(keyframe1, keyframe2, num_inter_frames):
         cv2.imwrite(path, cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
     output_video = os.path.join(session_path, "output.mp4") # f"{session_path}/output.mp4"
-    (
+    
+    try:
+        (
         ffmpeg
         .input(f"{session_path}/frame_%03d.png", framerate=30)
         # .filter("scale", 1920, 1920)
         .output(output_video, vcodec='libx264', pix_fmt='yuv420p')
         .overwrite_output()
         .run()
-    )
+        )
+    except ffmpeg.Error as e:
+        print("❌ FFmpeg error!")
+        print("STDOUT:", e.stdout.decode())
+        print("STDERR:", e.stderr.decode())  # This is the important one
+        raise e
 
     return output_video
 
