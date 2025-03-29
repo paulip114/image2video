@@ -23,8 +23,21 @@ def simple_interpolate(img1, img2, num_frames):
 
 # === Main function ===
 def generate_video(keyframe1, keyframe2, num_inter_frames):
+    # Purge old sessions if needed
+    temp_dir = "temp"
+    os.makedirs(temp_dir, exist_ok=True)
+    sessions = [os.path.join(temp_dir, d) for d in os.listdir(temp_dir) if os.path.isdir(os.path.join(temp_dir, d))]
+    sessions.sort(key=lambda d: os.path.getctime(d)) 
+
+    while len(sessions) > 2:  # keep only the 3 most recent
+        to_delete = sessions.pop(0)
+        shutil.rmtree(to_delete)
+        print(f"Purged old session: {to_delete}")
+
+    # === Generate new session ===
     session_id = str(uuid.uuid4())
-    os.makedirs(f"temp/{session_id}", exist_ok=True)
+    session_path = os.path.join(temp_dir, session_id)
+    os.makedirs(session_path, exist_ok=True)
 
     img1 = np.array(Image.open(keyframe1).convert("RGB"))
     img2 = np.array(Image.open(keyframe2).convert("RGB"))
@@ -34,18 +47,16 @@ def generate_video(keyframe1, keyframe2, num_inter_frames):
 
     frames = simple_interpolate(img1, img2, num_inter_frames)
 
-    frame_paths = []
     for i, frame in enumerate(frames):
-        path = f"temp/{session_id}/frame_{i:03d}.png"
+        path = f"{session_path}/frame_{i:03d}.png"
         cv2.imwrite(path, cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-        frame_paths.append(path)
 
-    output_video = f"temp/{session_id}/output.mp4"
+    output_video = os.path.join(session_path, "output.mp4") # f"{session_path}/output.mp4"
     (
         ffmpeg
-        .input(f"temp/{session_id}/frame_%03d.png", framerate=30)
-        .filter("scale", 1920, 1920)
-        .output(output_video, vcodec='libx264', pix_fmt='yuv422p')
+        .input(f"{session_path}/frame_%03d.png", framerate=30)
+        # .filter("scale", 1920, 1920)
+        .output(output_video, vcodec='libx264', pix_fmt='yuv420p')
         .overwrite_output()
         .run()
     )
